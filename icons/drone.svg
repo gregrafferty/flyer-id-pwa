@@ -1,0 +1,28 @@
+<!-- Shared drone artwork, centred on 256,256. Included by build-icons.sh into each icon. -->
+<g id="drone">
+  <!-- arms -->
+  <g stroke="#ffffff" stroke-width="30" stroke-linecap="round">
+    <line x1="256" y1="256" x2="148" y2="148"/>
+    <line x1="256" y1="256" x2="364" y2="148"/>
+    <line x1="256" y1="256" x2="148" y2="364"/>
+    <line x1="256" y1="256" x2="364" y2="364"/>
+  </g>
+  <!-- rotors: guard ring, spinning-disc tint, blades, hub -->
+  <g id="rotor">
+    <circle cx="148" cy="148" r="66" fill="#ffffff" fill-opacity="0.14" stroke="#ffffff" stroke-width="10"/>
+    <ellipse cx="148" cy="148" rx="50" ry="9" fill="#ffffff" transform="rotate(-30 148 148)"/>
+    <ellipse cx="148" cy="148" rx="50" ry="9" fill="#ffffff" fill-opacity="0.55" transform="rotate(60 148 148)"/>
+    <circle cx="148" cy="148" r="13" fill="#ffffff"/>
+    <circle cx="148" cy="148" r="5" fill="#1b2766"/>
+  </g>
+  <use href="#rotor" transform="translate(216 0)"/>
+  <use href="#rotor" transform="translate(0 216)"/>
+  <use href="#rotor" transform="translate(216 216)"/>
+  <!-- body -->
+  <rect x="200" y="200" width="112" height="112" rx="34" fill="#ffffff"/>
+  <rect x="216" y="216" width="80" height="80" rx="24" fill="#e7ebfb"/>
+  <!-- camera / status light -->
+  <circle cx="256" cy="256" r="22" fill="#1b2766"/>
+  <circle cx="256" cy="256" r="12" fill="#ffb31a"/>
+  <circle cx="251" cy="251" r="4" fill="#ffffff" fill-opacity="0.85"/>
+</g>

@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Flyer ID</title>
+<meta name="theme-color" content="#1d2a6b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Flyer ID">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<style>
+  :root {
+    --bg: #f3f4f8;
+    --panel: #ffffff;
+    --text: #15182b;
+    --muted: #5d6275;
+    --line: #d9dce6;
+    --brand: #1d2a6b;
+    --brand-text: #ffffff;
+    --warn-bg: #fff1e6;
+    --warn-text: #8a3b00;
+    --bad-bg: #fde8e8;
+    --bad-text: #9b1c1c;
+    --radius: 14px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f1220;
+      --panel: #1a1e30;
+      --text: #eef0f7;
+      --muted: #a2a7bb;
+      --line: #2e3450;
+      --brand: #6f86ff;
+      --brand-text: #0f1220;
+      --warn-bg: #3a2610;
+      --warn-text: #ffc58f;
+      --bad-bg: #3d1515;
+      --bad-text: #ffb4b4;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font: 16px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    min-height: 100vh;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+  main { max-width: 640px; margin: 0 auto; padding: 16px; }
+  header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 4px 0 16px; }
+  h1 { font-size: 1.25rem; margin: 0; }
+  h2 { font-size: 1.05rem; margin: 0 0 12px; }
+  [hidden] { display: none !important; }
+
+  .card {
+    display: block;
+    width: 100%;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 6px 24px rgba(0,0,0,.14);
+    cursor: zoom-in;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .card svg { display: block; width: 100%; height: auto; border-radius: 12px; }
+  .hint { color: var(--muted); font-size: .875rem; text-align: center; margin: 10px 0 0; }
+
+  .banner { border-radius: 10px; padding: 10px 12px; margin: 0 0 14px; font-size: .95rem; }
+  .banner.warn { background: var(--warn-bg); color: var(--warn-text); }
+  .banner.bad  { background: var(--bad-bg);  color: var(--bad-text); }
+
+  .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+  button, .btn {
+    font: inherit;
+    font-weight: 600;
+    border-radius: 10px;
+    padding: 11px 16px;
+    border: 1px solid var(--line);
+    background: var(--panel);
+    color: var(--text);
+    cursor: pointer;
+    min-height: 44px;
+  }
+  button.primary { background: var(--brand); color: var(--brand-text); border-color: transparent; }
+  button.danger { color: var(--bad-text); }
+  .actions > * { flex: 1 1 auto; }
+
+  form.panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; }
+  label { display: block; font-weight: 600; font-size: .9rem; margin: 0 0 6px; }
+  .field { margin-bottom: 14px; }
+  input[type=text], input[type=date] {
+    width: 100%;
+    font: inherit;
+    font-size: 17px; /* >=16px stops iOS zooming into the field */
+    padding: 11px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    background: var(--bg);
+    color: var(--text);
+    -webkit-appearance: none;
+    appearance: none;
+    min-height: 46px;
+  }
+  input:focus { outline: 2px solid var(--brand); outline-offset: 1px; }
+  .help { color: var(--muted); font-size: .82rem; margin-top: 5px; }
+  .help.err { color: var(--bad-text); }
+  .divider { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: .85rem; margin: 18px 0; }
+  .divider::before, .divider::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+  .import { text-align: center; }
+  .import input[type=file] { display: none; }
+  .note { color: var(--muted); font-size: .82rem; margin-top: 18px; }
+
+  /* Full-screen "show it" view */
+  #full {
+    position: fixed; inset: 0; z-index: 10;
+    background: #fff;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+    cursor: zoom-out;
+  }
+  #full .rot { flex: none; }
+  #full svg { display: block; width: 100%; height: 100%; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Drone Flyer ID</h1>
+  </header>
+
+  <!-- Card view -->
+  <section id="view" hidden>
+    <div id="status"></div>
+    <div class="card" id="card" role="button" tabindex="0" aria-label="Show Flyer ID full screen"></div>
+    <p class="hint">Tap the card to show it full screen.</p>
+    <div class="actions">
+      <button type="button" id="editBtn">Edit details</button>
+      <button type="button" id="exportBtn">Save as SVG</button>
+    </div>
+  </section>
+
+  <!-- Edit view -->
+  <section id="edit" hidden>
+    <form class="panel" id="form" novalidate autocomplete="off">
+      <h2 id="formTitle">Enter your Flyer ID details</h2>
+      <div class="field">
+        <label for="fid">Flyer ID</label>
+        <input type="text" id="fid" name="fid" placeholder="GBR-RP-XXXXXXXXXXXX" autocapitalize="characters" spellcheck="false" required>
+        <div class="help" id="fidHelp">Copy it exactly as printed, e.g. GBR-RP-ABCD1234EFGH.</div>
+      </div>
+      <div class="field">
+        <label for="first">First name</label>
+        <input type="text" id="first" name="first" autocapitalize="characters" spellcheck="false" required>
+      </div>
+      <div class="field">
+        <label for="last">Last name</label>
+        <input type="text" id="last" name="last" autocapitalize="characters" spellcheck="false" required>
+      </div>
+      <div class="field">
+        <label for="expiry">Expiry date</label>
+        <input type="date" id="expiry" name="expiry" required>
+      </div>
+      <div class="help err" id="formErr" hidden></div>
+      <div class="actions">
+        <button type="button" id="cancelBtn" hidden>Cancel</button>
+        <button type="submit" class="primary">Save</button>
+      </div>
+
+      <div class="divider">or</div>
+      <div class="import">
+        <label class="btn" for="file" style="display:inline-block;margin:0">Import the official SVG file</label>
+        <input type="file" id="file" accept=".svg,image/svg+xml">
+        <div class="help">Fills the fields from the Flyer ID file the CAA lets you download. Check them, then press Save.</div>
+      </div>
+      <div class="divider"></div>
+      <button type="button" class="danger" id="clearBtn" hidden style="width:100%">Delete stored details</button>
+      <p class="note">Your details stay on this device only. Nothing is uploaded anywhere.</p>
+    </form>
+  </section>
+</main>
+
+<div id="full" hidden aria-label="Flyer ID full screen. Tap to close."><div class="rot"></div></div>
+
+<script>
+(() => {
+  'use strict';
+
+  const KEY = 'flyerId.v1';
+  const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const $ = (id) => document.getElementById(id);
+
+  // ---- storage (localStorage can throw in private mode) ----
+  function load() {
+    try { return JSON.parse(localStorage.getItem(KEY)) || null; } catch { return null; }
+  }
+  function save(d) {
+    try { localStorage.setItem(KEY, JSON.stringify(d)); return true; } catch { return false; }
+  }
+  function clear() { try { localStorage.removeItem(KEY); } catch {} }
+
+  // ---- dates: stored as YYYY-MM-DD, shown as "25 October 2031" like the official card ----
+  function fmtDate(iso) {
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || '');
+    if (!m) return iso || '';
+    return `${+m[3]} ${MONTHS[+m[2] - 1]} ${m[1]}`;
+  }
+  function parseDate(text) {
+    const m = /^\s*(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})\s*$/.exec(text || '');
+    if (!m) return '';
+    const mi = MONTHS.findIndex((n) => n.toLowerCase().startsWith(m[2].toLowerCase().slice(0, 3)));
+    if (mi < 0) return '';
+    return `${m[3]}-${String(mi + 1).padStart(2, '0')}-${m[1].padStart(2, '0')}`;
+  }
+  function daysUntil(iso) {
+    const [y, mo, d] = iso.split('-').map(Number);
+    const end = new Date(y, mo - 1, d);
+    const now = new Date(); now.setHours(0, 0, 0, 0);
+    return Math.round((end - now) / 86400000);
+  }
+
+  // ---- card SVG: same canvas, image and text positions as the official file ----
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  function cardSvg(d, bgHref) {
+    const t = (size, x, y, s) =>
+      `<text font-family="Arial, sans-serif" fill="black" font-size="${size}" x="${x}" y="${y}" font-weight="bold" text-anchor="start">${esc(s)}</text>`;
+    return `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="886" height="575" viewBox="0 0 886 575">` +
+      `<rect width="886" height="575" fill="#fff"/>` +
+      `<image height="100%" width="100%" href="${bgHref}" xlink:href="${bgHref}"/>` +
+      t(31, 73, 252, d.fid) +
+      t(24, 220, 295, d.first) +
+      t(24, 220, 340, d.last) +
+      t(24, 220, 385, fmtDate(d.expiry)) +
+      `</svg>`;
+  }
+
+  // ---- views ----
+  let data = load();
+
+  function showView() {
+    $('edit').hidden = true;
+    $('view').hidden = false;
+    $('card').innerHTML = cardSvg(data, 'card-bg.jpg');
+
+    const days = daysUntil(data.expiry);
+    const st = $('status');
+    if (days < 0) st.innerHTML = '<div class="banner bad">This Flyer ID has expired. Renew it on the CAA website, then update your details here.</div>';
+    else if (days <= 60) st.innerHTML = `<div class="banner warn">Expires in ${days} day${days === 1 ? '' : 's'}. Remember to renew it.</div>`;
+    else st.innerHTML = '';
+  }
+
+  function showEdit() {
+    $('view').hidden = true;
+    $('edit').hidden = false;
+    const d = data || {};
+    $('fid').value = d.fid || '';
+    $('first').value = d.first || '';
+    $('last').value = d.last || '';
+    $('expiry').value = d.expiry || '';
+    $('formTitle').textContent = data ? 'Edit your Flyer ID details' : 'Enter your Flyer ID details';
+    $('cancelBtn').hidden = !data;
+    $('clearBtn').hidden = !data;
+    $('formErr').hidden = true;
+    checkFid();
+  }
+
+  // Flyer IDs look like GBR-RP-XXXXXXXXXXXX. Warn (not block) if it doesn't match, in case the format changes.
+  const FID_RE = /^GBR-RP-[A-Z0-9]{12}$/;
+  function checkFid() {
+    const v = $('fid').value.trim().toUpperCase();
+    const h = $('fidHelp');
+    if (v && !FID_RE.test(v)) {
+      h.textContent = 'This doesn’t look like the usual GBR-RP- plus 12 characters. Double-check it against your official copy.';
+      h.classList.add('err');
+    } else {
+      h.textContent = 'Copy it exactly as printed, e.g. GBR-RP-ABCD1234EFGH.';
+      h.classList.remove('err');
+    }
+  }
+  $('fid').addEventListener('input', checkFid);
+
+  $('form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const d = {
+      fid: $('fid').value.trim().toUpperCase().replace(/\s+/g, ''),
+      first: $('first').value.trim().toUpperCase(),
+      last: $('last').value.trim().toUpperCase(),
+      expiry: $('expiry').value
+    };
+    const missing = Object.entries({ 'Flyer ID': d.fid, 'first name': d.first, 'last name': d.last, 'expiry date': d.expiry })
+      .filter(([, v]) => !v).map(([k]) => k);
+    const err = $('formErr');
+    if (missing.length) {
+      err.textContent = 'Please fill in: ' + missing.join(', ') + '.';
+      err.hidden = false;
+      return;
+    }
+    data = d;
+    if (!save(d)) {
+      err.textContent = 'Couldn’t save on this device (private browsing?). The card will show now but may not be kept.';
+      err.hidden = false;
+    }
+    showView();
+  });
+
+  $('cancelBtn').addEventListener('click', showView);
+  $('editBtn').addEventListener('click', showEdit);
+  $('clearBtn').addEventListener('click', () => {
+    if (!confirm('Delete your stored Flyer ID details from this device?')) return;
+    clear();
+    data = null;
+    showEdit();
+  });
+
+  // ---- import the official SVG: text elements are ID, first, last, expiry in that order ----
+  $('file').addEventListener('change', async (e) => {
+    const f = e.target.files[0];
+    e.target.value = '';
+    if (!f) return;
+    const err = $('formErr');
+    try {
+      const doc = new DOMParser().parseFromString(await f.text(), 'image/svg+xml');
+      const texts = [...doc.getElementsByTagName('text')].map((n) => n.textContent.trim()).filter(Boolean);
+      if (texts.length < 4) throw new Error('not enough text');
+      const fid = texts.find((s) => /^GBR-/i.test(s)) || texts[0];
+      const rest = texts.filter((s) => s !== fid);
+      $('fid').value = fid;
+      $('first').value = rest[0] || '';
+      $('last').value = rest[1] || '';
+      $('expiry').value = parseDate(rest[2]);
+      checkFid();
+      err.hidden = true;
+    } catch {
+      err.textContent = 'Couldn’t read that file. Enter the details by hand instead.';
+      err.hidden = false;
+    }
+  });
+
+  // ---- full screen: fill the screen, rotating to landscape when the phone is upright ----
+  const full = $('full');
+  const rot = full.querySelector('.rot');
+  let wakeLock = null;
+
+  function layoutFull() {
+    const W = window.innerWidth, H = window.innerHeight, R = 886 / 575;
+    const portrait = H > W;
+    // Available box in the card's own orientation
+    const bw = portrait ? H : W, bh = portrait ? W : H;
+    let w = bw * 0.96, h = w / R;
+    if (h > bh * 0.96) { h = bh * 0.96; w = h * R; }
+    rot.style.width = w + 'px';
+    rot.style.height = h + 'px';
+    rot.style.transform = portrait ? 'rotate(90deg)' : 'none';
+  }
+
+  async function openFull() {
+    rot.innerHTML = cardSvg(data, 'card-bg.jpg');
+    full.hidden = false;
+    layoutFull();
+    try { await document.documentElement.requestFullscreen?.(); } catch {}
+    try { wakeLock = await navigator.wakeLock?.request('screen'); } catch {}
+  }
+  function closeFull() {
+    full.hidden = true;
+    if (document.fullscreenElement) document.exitFullscreen?.().catch(() => {});
+    wakeLock?.release?.().catch(() => {});
+    wakeLock = null;
+  }
+  $('card').addEventListener('click', openFull);
+  $('card').addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openFull(); } });
+  full.addEventListener('click', closeFull);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !full.hidden) closeFull(); });
+  window.addEventListener('resize', () => { if (!full.hidden) layoutFull(); });
+  document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement && !full.hidden) closeFull(); });
+
+  // ---- export a standalone SVG in the same format as the official one ----
+  $('exportBtn').addEventListener('click', async () => {
+    try {
+      const blob = await (await fetch('card-bg.jpg')).blob();
+      const dataUrl = await new Promise((res, rej) => {
+        const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(blob);
+      });
+      const out = new Blob([cardSvg(data, dataUrl)], { type: 'image/svg+xml' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(out);
+      a.download = 'flyer-id.svg';
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+    } catch {
+      alert('Couldn’t create the file.');
+    }
+  });
+
+  // ---- start ----
+  data ? showView() : showEdit();
+
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+  }
+})();
+</script>
+</body>
+</html>
