@@ -114,6 +114,44 @@
   .import input[type=file] { display: none; }
   .note { color: var(--muted); font-size: .82rem; margin-top: 18px; }
 
+
+  /* Tabs */
+  body { padding-bottom: calc(64px + env(safe-area-inset-bottom)); }
+  nav.tabs {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 5;
+    display: flex; justify-content: center;
+    background: var(--panel); border-top: 1px solid var(--line);
+    padding: 0 env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+  nav.tabs a {
+    flex: 1; max-width: 213px; min-height: 56px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+    color: var(--muted); text-decoration: none; font-size: .78rem; font-weight: 600;
+    -webkit-tap-highlight-color: transparent;
+  }
+  nav.tabs a svg { width: 22px; height: 22px; }
+  nav.tabs a[aria-current="page"] { color: var(--brand); }
+
+  /* Rules and links pages */
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; margin-bottom: 14px; }
+  .lead { color: var(--muted); margin: 0 0 14px; font-size: .95rem; }
+  ul.rules { margin: 0; padding-left: 1.2em; }
+  ul.rules li { margin: 0 0 8px; }
+  ul.rules li:last-child { margin-bottom: 0; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 14px; }
+  .chips button { min-height: 40px; padding: 8px 12px; font-size: .9rem; border-radius: 999px; flex: 0 0 auto; }
+  .chips button[aria-pressed="true"] { background: var(--brand); color: var(--brand-text); border-color: transparent; }
+  dl.facts { display: grid; grid-template-columns: max-content 1fr; gap: 8px 14px; margin: 0 0 14px; font-size: .95rem; }
+  dl.facts dt { color: var(--muted); font-weight: 600; }
+  dl.facts dd { margin: 0; }
+  .tag { display: inline-block; font-size: .8rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: var(--bg); border: 1px solid var(--line); }
+  .small { color: var(--muted); font-size: .82rem; }
+  .linkgroup h2 { margin-bottom: 8px; }
+  .linkgroup a { display: block; padding: 10px 0; border-top: 1px solid var(--line); color: var(--text); text-decoration: none; }
+  .linkgroup a:first-of-type { border-top: 0; }
+  .linkgroup a strong { color: var(--brand); display: block; }
+  .linkgroup a span { color: var(--muted); font-size: .85rem; }
+
   /* Full-screen "show it" view */
   #full {
     position: fixed; inset: 0; z-index: 10;
@@ -129,7 +167,7 @@
 <body>
 <main>
   <header>
-    <h1>Drone Flyer ID</h1>
+    <h1 id="pageTitle">Drone Flyer ID</h1>
   </header>
 
   <!-- Card view -->
@@ -181,7 +219,68 @@
       <p class="note">Your details stay on this device only. Nothing is uploaded anywhere.</p>
     </form>
   </section>
+
+  <!-- Rules page -->
+  <section id="rules" hidden>
+    <p class="lead">The key rules for flying in the UK Open category. This is a summary. The CAA’s Drone and Model Aircraft Code is the official version.</p>
+
+    <div class="panel">
+      <h2>Everyone, every flight</h2>
+      <ul class="rules">
+        <li><strong>Stay below 120&nbsp;m (400&nbsp;ft)</strong> from the closest point of the ground.</li>
+        <li><strong>Keep it in sight.</strong> Always see your drone with your own eyes. If you use FPV goggles, you need an observer next to you.</li>
+        <li><strong>Never fly over crowds</strong> or large groups of people.</li>
+        <li><strong>Check the airspace before you fly.</strong> Don’t enter an airport or airfield Flight Restriction Zone without permission.</li>
+        <li><strong>Keep away from emergency services</strong> activity such as accidents, fires and police incidents.</li>
+        <li><strong>Carry your Flyer ID</strong>, and put your Operator ID on the drone where one is needed.</li>
+        <li><strong>Turn on Remote ID</strong> if your drone needs it (see below).</li>
+        <li><strong>Respect privacy.</strong> Think before you film people, and follow data protection law if you record them.</li>
+        <li><strong>You are responsible</strong> for every flight. Check the drone, the battery and the weather first.</li>
+      </ul>
+    </div>
+
+    <div class="panel">
+      <h2>What applies to your drone</h2>
+      <p class="small" style="margin:0 0 10px">Choose the class mark on your drone, or its weight if it has no class mark.</p>
+      <div class="chips" id="typeChips" role="group" aria-label="Drone type"></div>
+      <div id="typeBody" aria-live="polite"></div>
+    </div>
+
+    <div class="panel">
+      <h2>Good to know</h2>
+      <ul class="rules">
+        <li><strong>Flyer ID</strong> is free. It comes from the CAA’s online test and lasts 5 years.</li>
+        <li><strong>Operator ID</strong> is for the person or organisation responsible for the drone. You must be 18 or over, it costs an annual fee and you renew it every year.</li>
+        <li><strong>EU C‑class drones</strong> (C0 to C4) can be flown as the matching UK class until 31 December 2027.</li>
+        <li><strong>The A2 Certificate of Competency</strong> (A2 CofC) comes from a CAA‑recognised training provider. It lets you fly a UK2 drone closer to people.</li>
+        <li><strong>Outside these limits?</strong> Flying closer to people, beyond sight or above 120&nbsp;m is the Specific category. It needs an Operational Authorisation from the CAA.</li>
+      </ul>
+    </div>
+    <p class="small">Summary last checked November 2026. Rules change, so check the CAA links page before you rely on it.</p>
+  </section>
+
+  <!-- Links page -->
+  <section id="links" hidden>
+    <p class="lead">Official sources for current UK drone rules. These open in your browser and need a signal.</p>
+    <div id="linkGroups"></div>
+    <p class="small">Links last checked November 2026.</p>
+  </section>
 </main>
+
+<nav class="tabs" aria-label="Sections">
+  <a href="#id" data-tab="id">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="M6 16c.6-1.4 1.7-2 3-2s2.4.6 3 2M14 10h4M14 13h3"/></svg>
+    My ID
+  </a>
+  <a href="#rules" data-tab="rules">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 11l2 2 4-4"/><path d="M12 3l8 3v6c0 4.5-3.4 8.2-8 9-4.6-.8-8-4.5-8-9V6z"/></svg>
+    Rules
+  </a>
+  <a href="#links" data-tab="links">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>
+    CAA links
+  </a>
+</nav>
 
 <div id="full" hidden aria-label="Flyer ID full screen. Tap to close."><div class="rot"></div></div>
 
@@ -394,8 +493,97 @@
     }
   });
 
+
+  // ---- rules by drone type ----
+  const TYPES = [
+    { key: 'u100', label: 'Under 100 g', sub: 'A1', ids: 'None needed. Taking the Flyer ID test is still recommended.',
+      rid: 'Not needed.',
+      rules: ['You can fly over people, but never over crowds.', 'All the “everyone” rules above still apply.'] },
+    { key: 'uk0', label: 'UK0 / under 250 g', sub: 'A1',
+      ids: 'Flyer ID. Operator ID too if it has a camera.',
+      rid: 'Needed from 1 January 2028 if it weighs 100 g or more and has a camera.',
+      rules: ['You can fly over people, but keep it to a minimum and never fly over crowds.', 'Covers UK0 and C0 drones, and unmarked or home‑built drones under 250 g.'] },
+    { key: 'uk1', label: 'UK1', sub: 'A1',
+      ids: 'Flyer ID and Operator ID.',
+      rid: 'Needed now. Add your Operator ID to it and switch it on before each flight.',
+      rules: ['Don’t fly over people you aren’t working with. If it happens by accident, keep the time over them to a minimum.', 'Never fly over crowds.'] },
+    { key: 'uk2', label: 'UK2', sub: 'A2 with an A2 CofC, otherwise A3',
+      ids: 'Flyer ID and Operator ID. An A2 CofC to fly in A2.',
+      rid: 'Needed now. Add your Operator ID to it and switch it on before each flight.',
+      rules: ['<strong>With an A2 CofC:</strong> stay at least 30 m horizontally from uninvolved people, or 5 m if the drone is in low‑speed mode.', '<strong>Without one:</strong> follow the A3 rules (50 m from people, 150 m from built‑up areas).', 'Never fly over uninvolved people.'] },
+    { key: 'a3', label: 'UK3 / UK4 / unmarked 250 g+', sub: 'A3',
+      ids: 'Flyer ID and Operator ID.',
+      rid: 'UK3: needed now. UK4, plus unmarked and home‑built drones with a camera: needed from 1 January 2028.',
+      rules: ['Fly only where you reasonably expect no uninvolved people to be put at risk.', 'Stay at least 50 m from uninvolved people.', 'Stay at least 150 m horizontally from residential, commercial, industrial and recreational areas.', 'Covers drones bought before 2026 with no class mark that weigh 250 g up to 25 kg.'] },
+    { key: 'spec', label: 'Over 25 kg / UK5 / UK6', sub: 'Specific category',
+      ids: 'Flyer ID and Operator ID, plus an Operational Authorisation from the CAA.',
+      rid: 'Usually needed. Your authorisation will say.',
+      rules: ['These drones can’t fly in the Open category.', 'Your Operational Authorisation and operations manual set your limits.'] }
+  ];
+  const TYPE_KEY = 'flyerId.rulesType';
+  let typeSel = (() => { try { return localStorage.getItem(TYPE_KEY); } catch { return null; } })();
+  if (!TYPES.some((t) => t.key === typeSel)) typeSel = 'uk0';
+
+  function renderTypes() {
+    $('typeChips').innerHTML = TYPES.map((t) =>
+      `<button type="button" data-k="${t.key}" aria-pressed="${t.key === typeSel}">${esc(t.label)}</button>`).join('');
+    const t = TYPES.find((x) => x.key === typeSel);
+    $('typeBody').innerHTML =
+      `<dl class="facts"><dt>Sub‑category</dt><dd><span class="tag">${esc(t.sub)}</span></dd>` +
+      `<dt>IDs</dt><dd>${esc(t.ids)}</dd><dt>Remote ID</dt><dd>${esc(t.rid)}</dd></dl>` +
+      `<ul class="rules">${t.rules.map((r) => `<li>${r}</li>`).join('')}</ul>`;
+  }
+  $('typeChips').addEventListener('click', (e) => {
+    const b = e.target.closest('button[data-k]');
+    if (!b) return;
+    typeSel = b.dataset.k;
+    try { localStorage.setItem(TYPE_KEY, typeSel); } catch {}
+    renderTypes();
+  });
+  renderTypes();
+
+  // ---- official links ----
+  const LINKS = [
+    { title: 'Register and renew', items: [
+      ['Get or renew your Flyer ID and Operator ID', 'register-drones.caa.co.uk', 'https://register-drones.caa.co.uk/'],
+      ['Registering to fly drones and model aircraft', 'Who needs which ID', 'https://www.caa.co.uk/drones/open-category/getting-started-with-drones-and-model-aircraft/registering-to-fly-drones-and-model-aircraft/'],
+      ['Getting what you need to fly legally', 'IDs by weight, camera and class', 'https://www.caa.co.uk/drones/open-category/drone-code/getting-what-you-need-to-fly-legally/']
+    ] },
+    { title: 'The rules', items: [
+      ['The Drone and Model Aircraft Code (March 2026)', 'The official Drone Code (PDF)', 'https://www.caa.co.uk/media/csmfqbs1/the-drone-code-march-2026.pdf'],
+      ['Class marks', 'UK0 to UK6 and where each can fly', 'https://www.caa.co.uk/drones/getting-started-with-drones-and-model-aircraft/class-marks/'],
+      ['Remote ID', 'Which drones need it, and when', 'https://www.caa.co.uk/drones/moving-on-to-more-advanced-flying/remote-id-rid/'],
+      ['Moving on to more advanced flying', 'A2 CofC, the Specific category and authorisations', 'https://www.caa.co.uk/drones/moving-on-to-more-advanced-flying/introduction-to-more-advanced-flying/']
+    ] },
+    { title: 'Latest news and law', items: [
+      ['CAA drone news and updates', 'Rule changes are announced here first', 'https://www.caa.co.uk/drones/drones-news-and-updates/news-and-updates/'],
+      ['UK Regulation (EU) 2019/947', 'The underlying law, from the CAA regulatory library (PDF)', 'https://regulatorylibrary.caa.co.uk/2019-947-pdf/PDF.pdf'],
+      ['CAA drones home', 'Everything else about drones from the CAA', 'https://www.caa.co.uk/drones/']
+    ] }
+  ];
+  $('linkGroups').innerHTML = LINKS.map((g) =>
+    `<div class="panel linkgroup"><h2>${esc(g.title)}</h2>` +
+    g.items.map(([t, d, u]) => `<a href="${esc(u)}" target="_blank" rel="noopener"><strong>${esc(t)} ↗</strong><span>${esc(d)}</span></a>`).join('') +
+    `</div>`).join('');
+
+  // ---- tabs (hash routing so the back button works) ----
+  function route() {
+    const tab = (location.hash || '#id').slice(1);
+    const t = ['id', 'rules', 'links'].includes(tab) ? tab : 'id';
+    $('rules').hidden = t !== 'rules';
+    $('links').hidden = t !== 'links';
+    if (t === 'id') { data ? showView() : showEdit(); }
+    else { $('view').hidden = true; $('edit').hidden = true; }
+    $('pageTitle').textContent = { id: 'Drone Flyer ID', rules: 'Key rules', links: 'Official CAA links' }[t];
+    document.querySelectorAll('nav.tabs a').forEach((a) => {
+      if (a.dataset.tab === t) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
+    });
+    window.scrollTo(0, 0);
+  }
+  window.addEventListener('hashchange', route);
+
   // ---- start ----
-  data ? showView() : showEdit();
+  route();
 
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));

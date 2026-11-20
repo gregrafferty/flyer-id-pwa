@@ -1,5 +1,5 @@
 // Bump VERSION whenever any cached file changes so phones pick up the update.
-const VERSION = 'flyer-id-v2';
+const VERSION = 'flyer-id-v3';
 const ASSETS = [
   './',
   './index.html',
